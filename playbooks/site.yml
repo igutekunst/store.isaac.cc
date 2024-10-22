@@ -1,0 +1,6 @@
+---
+- name: Install Jenkins in Docker on Beachhead Server
+  hosts: beachhead
+  become: yes
+  roles:
+    - jenkins

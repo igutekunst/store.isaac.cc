@@ -1,0 +1,4 @@
+postgres_password: "{{vault_postgres_password}}"
+django_secret_key: "{{vault_django_secret_key}}"
+django_admin_password: "{{vault_django_admin_password}}"
+email_password: "{{vault_email_password}}"

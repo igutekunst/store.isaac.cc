@@ -1,0 +1,10 @@
+---
+- name: Render .env file
+  ansible.builtin.template:
+    src: ".env.j2"
+    dest: "{{ django_dir }}/.env"
+
+- name: Render Docker Compose file
+  ansible.builtin.template:
+    src: "compose.yaml.j2"
+    dest: "{{ django_dir }}/compose.local.yaml"

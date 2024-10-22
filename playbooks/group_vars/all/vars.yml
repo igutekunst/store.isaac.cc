@@ -18,7 +18,7 @@ email_use_tls: true
 email_host_user: "admin@isaac.cc"
 allowed_hosts: "localhost, 127.0.0.1,{{domain}}"
 
-nginx_port: 11480
+nginx_port: 11580
 
 
 acme_challenge_type: http-01

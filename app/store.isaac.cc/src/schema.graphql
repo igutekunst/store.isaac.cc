@@ -1,0 +1,158 @@
+type Query {
+  products: [ProductType]
+  product(id: ID!): ProductType
+  cart: CartType
+  order(id: ID!): OrderType
+}
+
+type ProductType {
+  id: ID!
+  name: String!
+  description: String!
+  price: Decimal!
+  variants: [ProductVariantType!]!
+}
+
+"""The `Decimal` scalar type represents a python Decimal."""
+scalar Decimal
+
+type ProductVariantType {
+  id: ID!
+  product: ProductType!
+  size: String!
+  color: String!
+  sex: String!
+  stock: Int!
+  orderitemSet: [OrderItemType!]!
+}
+
+type OrderItemType {
+  id: ID!
+  order: OrderType!
+  productVariant: ProductVariantType!
+  quantity: Int!
+  price: Decimal!
+}
+
+type OrderType {
+  id: ID!
+  user: UserType
+  email: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  status: String!
+  totalAmount: Decimal!
+  items: [OrderItemType!]!
+}
+
+type UserType {
+  id: ID!
+  lastLogin: DateTime
+  email: String!
+  firstName: String!
+  lastName: String!
+
+  """
+  Designates whether this user should be treated as active. Unselect this instead of deleting accounts.
+  """
+  isActive: Boolean!
+  dateJoined: DateTime!
+
+  """Designates whether the user has verified their email address."""
+  isVerified: Boolean!
+  cart: CartType
+  orderSet: [OrderType!]!
+}
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+type CartType {
+  id: ID!
+  user: UserType
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Mutation {
+  createAccount(email: String!, password: String!): CreateAccount
+  login(email: String!, password: String!): Login
+  logout: Logout
+  addToCart(productVariantId: ID!, quantity: Int!): AddToCart
+  createOrder(email: String!): CreateOrder
+  processPayment(orderId: ID!, token: String!): ProcessPayment
+  requestPasswordReset(email: String!): RequestPasswordReset
+  resetPassword(email: String!, newPassword: String!, token: String!): ResetPassword
+  sendMagicLink(email: String!): SendMagicLink
+
+  """Obtain JSON Web Token mutation"""
+  tokenAuth(email: String!, password: String!): ObtainJSONWebToken
+  verifyToken(token: String): Verify
+  refreshToken(token: String): Refresh
+}
+
+type CreateAccount {
+  user: UserType
+}
+
+type Login {
+  user: UserType
+}
+
+type Logout {
+  success: Boolean
+}
+
+type AddToCart {
+  cart: CartType
+}
+
+type CreateOrder {
+  order: OrderType
+}
+
+type ProcessPayment {
+  success: Boolean
+  error: String
+}
+
+type RequestPasswordReset {
+  success: Boolean
+}
+
+type ResetPassword {
+  success: Boolean
+  error: String
+}
+
+type SendMagicLink {
+  success: Boolean
+}
+
+"""Obtain JSON Web Token mutation"""
+type ObtainJSONWebToken {
+  payload: GenericScalar!
+  refreshExpiresIn: Int!
+  token: String!
+}
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+type Verify {
+  payload: GenericScalar!
+}
+
+type Refresh {
+  payload: GenericScalar!
+  refreshExpiresIn: Int!
+  token: String!
+}

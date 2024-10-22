@@ -29,9 +29,10 @@
 
     - name: Copy www directory
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../bundle/build"
-        dest: "/opt/containers/ansible/{{ site_name }}/www"
+        src: "{{ playbook_dir }}/../bundle/build/"
+        dest: "/opt/containers/ansible/{{ site_name }}/www/"
         mode: '0644'
+        remote_src: yes
       become: true
 
     - name: Pull Docker images

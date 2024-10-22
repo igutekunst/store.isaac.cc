@@ -6,24 +6,37 @@ import {
   FetchFunction,
 } from "relay-runtime";
 
-const HTTP_ENDPOINT = "http://localhost:5000/graphql";
+const HTTP_ENDPOINT = "https://api.staging.isaac.cc/graphql/";
 
 const fetchFn: FetchFunction = async (request, variables) => {
-  const resp = await fetch(HTTP_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Accept:
-        "application/graphql-response+json; charset=utf-8, application/json; charset=utf-8",
-      "Content-Type": "application/json",
-      // <-- Additional headers like 'Authorization' would go here
-    },
-    body: JSON.stringify({
-      query: request.text, // <-- The GraphQL document composed by Relay
-      variables,
-    }),
-  });
+  try {
+    const resp = await fetch(HTTP_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Accept:
+          "application/graphql-response+json; charset=utf-8, application/json; charset=utf-8",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: request.text,
+        variables,
+      }),
+    });
 
-  return await resp.json();
+    if (!resp.ok) {
+      throw new Error(`Network response was not ok: ${resp.statusText}`);
+    }
+
+    const jsonResponse = await resp.json();
+    if (!jsonResponse) {
+      throw new Error('Received empty JSON response');
+    }
+
+    return jsonResponse;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error; // Re-throw the error after logging
+  }
 };
 
 function createRelayEnvironment() {

@@ -1,3 +1,0 @@
-nginx_port: 11580
-env: "staging"
-domain: "store.staging.isaac.cc"

@@ -1,0 +1,79 @@
+- name: Check if certificate exists and is valid
+  ansible.builtin.stat:
+    path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+  register: cert_file
+  become: true
+
+- name: Set ssl_enabled fact
+  ansible.builtin.set_fact:
+    ssl_enabled: "{{ cert_file.stat.exists }}"
+
+- name: Render and copy staging Nginx configuration to ingress server
+  ansible.builtin.template:
+    src: staging-nginx-conf.j2
+    dest: "/etc/nginx/sites-available/{{ site_name }}_{{ env }}"
+    mode: '0644'
+  become: true
+
+- name: Enable Nginx site
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ site_name }}_{{ env }}"
+    dest: "/etc/nginx/sites-enabled/{{ site_name }}_{{ env }}"
+    state: link
+  become: true
+
+- name: Verify Nginx configuration
+  ansible.builtin.command: "nginx -t"
+  register: nginx_test
+  changed_when: false
+  failed_when: nginx_test.rc != 0
+  become: true
+
+
+- name: Reload Nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: reloaded
+  become: true
+
+- name: Ensure Certbot is installed
+  ansible.builtin.package:
+    name: certbot
+    state: present
+  become: true
+
+- name: Obtain SSL certificate using Certbot
+  ansible.builtin.command: >
+    certbot certonly --webroot -w /var/www/certbot
+    --email admin@{{ domain_name }}
+    --agree-tos
+    --no-eff-email
+    -d {{ domain_name }}
+  register: certbot_result
+  become: true
+  when: not ssl_enabled | bool
+
+- name: Set ssl_enabled fact after obtaining certificate
+  ansible.builtin.set_fact:
+    ssl_enabled: "{{ certbot_result is succeeded }}"
+  when: not ssl_enabled | bool
+
+
+- name: Check if certificate exists and is valid
+  ansible.builtin.stat:
+    path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+  register: cert_file
+  become: true
+
+- name: Set ssl_enabled fact
+  ansible.builtin.set_fact:
+    ssl_enabled: "{{ cert_file.stat.exists }}"
+
+
+- name: Render and copy staging Nginx configuration to ingress server
+  ansible.builtin.template:
+    src: staging-nginx-conf.j2
+    dest: "/etc/nginx/sites-available/{{ site_name }}_{{ env }}"
+    mode: '0644'
+  become: true
+  when: ssl_enabled | bool

@@ -1,0 +1,48 @@
+upstream {{site_name}}_{{env}}_web_servers {
+    least_conn;
+    {% for server in groups['web'] %}
+    server {{ hostvars[server]['ansible_default_ipv4']['address'] }}:{{nginx_port}} max_fails=3 fail_timeout=5s;
+    {% endfor %}
+}
+
+server {
+    server_name {{domain}};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /healthz/ {
+        return 200;
+    }
+
+    location / {
+        proxy_pass http://{{site_name}}_{{env}}_web_servers;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    {% if ssl_enabled %}
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/{{ domain_name }}/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+    {% else %}
+    listen 80;
+    {% endif %}
+}
+
+{% if ssl_enabled %}
+server {
+    if ($host = {{ domain }}) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name {{ domain }};
+    return 404; # managed by Certbot
+}
+{% endif %}

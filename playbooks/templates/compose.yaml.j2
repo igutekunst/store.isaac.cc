@@ -1,0 +1,11 @@
+
+services:
+
+  nginx:
+    image: {{nginx_image}}
+    container_name: {{site_name}}-nginx
+    volumes:
+      - ./www:/home/app/www
+    ports:
+      - {{nginx_port}}:80
+    restart: unless-stopped

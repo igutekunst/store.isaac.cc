@@ -1,0 +1,10 @@
+[web]
+green-lion.dancingvoid.com
+
+[ingress]
+gateway.dancingvoid.com
+
+
+[all:vars]
+ansible_user=ansible_user
+ansible_ssh_private_key_file=~/.ssh/id_ed25519_aslan_ansible

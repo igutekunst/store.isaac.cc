@@ -3,7 +3,7 @@ services:
 
   nginx:
     image: {{nginx_image}}
-    container_name: {{site_prefix}}-nginx
+    container_name: {{site_name}}-nginx
     volumes:
       - ./www:/home/app/www
     ports:

@@ -17,15 +17,15 @@
       become: true
 
     - name: Compile bundle in Docker container
-      community.docker.docker_container:
-        name: compile_bundle
-        image: node:latest
-        state: started
-        command: /bin/bash -c "cd /app && npm install && npm run build"
-        volumes:
-          - "{{ playbook_dir }}/../app/store.isaac.cc:/app"
-        auto_remove: true
+      ansible.builtin.command:
+        cmd: >
+          docker run --rm
+          -v "{{ playbook_dir }}/../app/store.isaac.cc:/app"
+          node:latest
+          /bin/bash -c "cd /app && npm install && npm run build"
       become: true
+      register: compile_result
+      failed_when: compile_result.rc != 0
 
     - name: Copy www directory
       ansible.builtin.copy:

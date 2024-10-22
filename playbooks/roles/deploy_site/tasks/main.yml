@@ -20,7 +20,7 @@
       ansible.builtin.command:
         cmd: >
           docker run --rm
-          -v "{{ playbook_dir }}/../app/store.isaac.cc:/app"
+          -v "{{ playbook_dir }}/../app/:/app"
           node:latest
           /bin/bash -c "cd /app && npm install && npm run build"
       become: true
@@ -29,7 +29,7 @@
 
     - name: Copy www directory
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../app/store.isaac.cc/out/"
+        src: "{{ playbook_dir }}/../app/out/"
         dest: "/opt/containers/ansible/{{ site_name }}/www/"
         mode: '0644'
       become: true

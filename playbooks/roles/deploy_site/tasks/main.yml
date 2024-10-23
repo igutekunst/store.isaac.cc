@@ -16,19 +16,6 @@
         mode: '0644'
       become: true
 
-    - name: Compile bundle in Docker container
-      community.docker.docker_container:
-        name: compile_bundle
-        image: node:latest
-        state: started
-        command: /bin/bash -c "cd /app && npm install && npm run build"
-        volumes:
-          - "{{ playbook_dir }}/../app:/app"
-        auto_remove: true
-      become: true
-      delegate_to: localhost
-
-
     - name: Copy www directory
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../app/out/"

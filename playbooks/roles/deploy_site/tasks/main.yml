@@ -26,6 +26,7 @@
           - "{{ playbook_dir }}/../app:/app"
         auto_remove: true
       become: true
+      delegate_to: localhost
 
 
     - name: Copy www directory

@@ -44,7 +44,7 @@ steps:
       - chmod 600 /root/.ssh/id_ed25519_aslan_ansible
       - echo "$${ANSIBLE_VAULT_PASSWORD}" > /tmp/vault_password
       - cat /tmp/vault_password | base64
-      - ansible-playbook --inventory playbooks/inventories/${DRONE_BRANCH} --vault-password-file /tmp/vault_password playbooks/playbook.yml --tags "staging,ingress,remote" -v
+      - ansible-playbook --inventory playbooks/inventories/${DRONE_BRANCH} --vault-password-file /tmp/vault_password playbooks/playbook.yml --tags "remote" -v
 ---
 kind: secret
 name: dockerconfig
